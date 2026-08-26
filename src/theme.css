@@ -1,0 +1,17 @@
+.top-actions { margin-left: auto; display: flex; align-items: center; gap: 18px; }
+.top-actions .user { margin-left: 0; }
+.theme-toggle { border: 1px solid #dce5f1; border-radius: 18px; padding: 8px 12px; color: #315477; background: #fff; font-size:13px; }
+.dark { color-scheme: dark; }
+.dark body, .dark .content { background: #101827; color: #e5edf8; }
+.dark .topbar, .dark aside, .dark .panel, .dark .hero, .dark .metrics article, .dark .auth-card { background: #182235; border-color: #2b3a53; box-shadow: none; }
+.dark .topbar { border-color: #2b3a53; }
+.dark input, .dark select, .dark .quick button, .dark .nested-form, .dark .draft-related { color: #e5edf8; background: #111a29; border-color: #33445f; }
+.dark .theme-toggle, .dark .btn.secondary { color: #dbeafe; background: #22314a; border-color: #3a4e6d; }
+.dark nav a, .dark .page-head p, .dark .hero p, .dark .metrics p, .dark .muted, .dark .panel small, .dark .table-footer { color: #aab9ce; }
+.dark nav a.active { background: #1e3a67; color: #90b8ff; }
+.dark th, .dark td, .dark .tabs, .dark .related { border-color: #2b3a53; color: #d7e2f2; }
+.dark .tabs button { background: #182235; color: #b8c7dd; }
+.dark .related p { color: #aab9ce; }
+.dark label { color: #f8fafc; }
+.dark .clickable-row:hover td { background: #1d2a40; }
+@media (max-width: 760px) { .top-actions { gap: 8px; } .theme-toggle { font-size: 0; padding: 9px; } .theme-toggle::first-letter { font-size:16px; } }
