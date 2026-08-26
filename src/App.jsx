@@ -19,7 +19,7 @@ async function createdClientId(response, client) { const direct=idOf(response); 
 async function hydrateClientAddresses(client){const addresses=client.enderecos||client.Enderecos||[];const hydrated=await Promise.all(addresses.map(async address=>{try{return await api.get('Endereco',idOf(address))}catch{return address}}));return {...client,enderecos:hydrated};}
 
 function useHashRoute() { const [route, setRoute] = useState(location.hash.slice(1) || '/login'); useEffect(() => { const h = () => setRoute(location.hash.slice(1) || '/login'); addEventListener('hashchange', h); return () => removeEventListener('hashchange', h); }, []); const go = p => location.hash = p; return [route, go]; }
-function AuthenticatedRedirect({go}){useEffect(()=>go('/home'),[go]);return null;}
+function AuthenticatedRedirect({go}){useEffect(()=>{go('/home')},[go]);return null;}
 function Button({ children, variant = 'primary', ...props }) { return <button className={`btn ${variant}`} {...props}>{children}</button>; }
 function Notice({ error, message }) { return error || message ? <div className={error ? 'notice error' : 'notice'}>{error || message}</div> : null; }
 
