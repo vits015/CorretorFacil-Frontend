@@ -8,6 +8,11 @@ export default defineConfig({
       '/api': {
         target: 'https://corretorfacil.onrender.com',
         changeOrigin: true,
+        rewrite: (path) => {
+          if (!path.startsWith('/api/Apolice')) return path;
+          const suffix = path.slice('/api/Apolice'.length);
+          return suffix || '/getAll';
+        },
       },
     },
   },

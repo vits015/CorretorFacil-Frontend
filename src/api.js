@@ -21,6 +21,13 @@ export async function request(path, options = {}) {
   return data;
 }
 
+async function apoliceFileRequest(path) {
+  const token = localStorage.getItem('cf_token');
+  const response = await fetch(`${BASE_URL}${path}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+  if (!response.ok) throw new ApiError(`Não foi possível baixar o arquivo (HTTP ${response.status}).`, response.status);
+  return response;
+}
+
 export const api = {
   login: (body) => request('/api/Usuario/Login', { method: 'POST', body: JSON.stringify(body) }),
   register: (body) => request('/api/Usuario', { method: 'POST', body: JSON.stringify(body) }),
@@ -30,6 +37,23 @@ export const api = {
   create: (resource, body) => request(`/api/${resource}`, { method: 'POST', body: JSON.stringify(body) }),
   update: (resource, body) => request(`/api/${resource}`, { method: 'PUT', body: JSON.stringify(body) }),
   remove: (resource, id) => request(`/api/${resource}/${id}`, { method: 'DELETE' }),
+  async uploadApoliceFile(id, file) {
+    const upload = await request(`/api/Apolice/${id}/upload-url`, { method: 'POST', body: JSON.stringify({ nomeArquivo: file.name, contentType: file.type || 'application/octet-stream' }) });
+    const uploadUrl = typeof upload === 'string' ? upload : upload?.uploadUrl || upload?.url || upload?.presignedUrl || upload?.data?.uploadUrl || upload?.data?.url;
+    if (!uploadUrl) throw new Error('A API não retornou a URL de envio do arquivo.');
+    const response = await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': file.type || 'application/octet-stream' }, body: file });
+    if (!response.ok) throw new Error('Não foi possível enviar o arquivo para o armazenamento.');
+  },
+  async downloadApoliceFile(id) {
+    const response = await apoliceFileRequest(`/api/Apolice/${id}/Download`);
+    const blob = await response.blob();
+    const disposition = response.headers.get('content-disposition') || '';
+    const name = disposition.match(/filename\*?=(?:UTF-8''|\")?([^;\"]+)/i)?.[1] || `apolice-${id}`;
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url; link.download = decodeURIComponent(name); link.click();
+    URL.revokeObjectURL(url);
+  },
 };
 
 export async function lookupCep(cep) {

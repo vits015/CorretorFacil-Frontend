@@ -1,6 +1,30 @@
 {
   "rewrites": [
     {
+      "source": "/api/Apolice/details/:id",
+      "destination": "https://corretorfacil.onrender.com/details/:id"
+    },
+    {
+      "source": "/api/Apolice/details",
+      "destination": "https://corretorfacil.onrender.com/details"
+    },
+    {
+      "source": "/api/Apolice/:id/upload-url",
+      "destination": "https://corretorfacil.onrender.com/:id/upload-url"
+    },
+    {
+      "source": "/api/Apolice/:id/Download",
+      "destination": "https://corretorfacil.onrender.com/:id/Download"
+    },
+    {
+      "source": "/api/Apolice/:id",
+      "destination": "https://corretorfacil.onrender.com/:id"
+    },
+    {
+      "source": "/api/Apolice",
+      "destination": "https://corretorfacil.onrender.com/getAll"
+    },
+    {
       "source": "/api/(.*)",
       "destination": "https://corretorfacil.onrender.com/api/$1"
     }
