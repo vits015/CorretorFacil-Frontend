@@ -17,6 +17,10 @@
       "destination": "https://corretorfacil.onrender.com/:id/Download"
     },
     {
+      "source": "/api/Apolice/:id/arquivo",
+      "destination": "https://corretorfacil.onrender.com/:id/arquivo"
+    },
+    {
       "source": "/api/Apolice/:id",
       "destination": "https://corretorfacil.onrender.com/:id"
     },

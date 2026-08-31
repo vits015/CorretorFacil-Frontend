@@ -28,6 +28,22 @@ async function apoliceFileRequest(path) {
   return response;
 }
 
+async function responseData(response) {
+  const contentType = response.headers.get('content-type') || '';
+  const data = contentType.includes('application/json') ? await response.json() : await response.text();
+  if (typeof data !== 'string') return data;
+  try { return JSON.parse(data); } catch { return data; }
+}
+
+function downloadFiles(data) {
+  const values = Array.isArray(data) ? data : data?.arquivos || data?.files || data?.items || data?.data || [data];
+  return values.filter(Boolean).map((file, index) => {
+    const url = typeof file === 'string' ? file : file.downloadUrl || file.url || file.presignedUrl || '';
+    const nome = typeof file === 'string' ? decodeURIComponent(file.split('?')[0].split('/').pop() || `Arquivo ${index + 1}`) : file.nomeArquivo || file.nome || file.fileName || `Arquivo ${index + 1}`;
+    return { nome, url, caminhoArquivo: typeof file === 'object' ? file.caminhoArquivo || file.key || '' : '' };
+  }).filter(file => file.url);
+}
+
 export const api = {
   login: (body) => request('/api/Usuario/Login', { method: 'POST', body: JSON.stringify(body) }),
   register: (body) => request('/api/Usuario', { method: 'POST', body: JSON.stringify(body) }),
@@ -43,16 +59,36 @@ export const api = {
     if (!uploadUrl) throw new Error('A API não retornou a URL de envio do arquivo.');
     const response = await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': file.type || 'application/octet-stream' }, body: file });
     if (!response.ok) throw new Error('Não foi possível enviar o arquivo para o armazenamento.');
+    const caminhoArquivo = upload?.caminhoArquivo || upload?.key || upload?.objectKey || upload?.fileKey || upload?.data?.caminhoArquivo || upload?.data?.key;
+    if (!caminhoArquivo) throw new Error('O arquivo foi enviado, mas a API não retornou o caminho para vinculá-lo à apólice.');
+    await request(`/api/Apolice/${id}/arquivo`, { method: 'PUT', body: JSON.stringify({ caminhoArquivo }) });
+    return { nome: file.name, caminhoArquivo };
   },
-  async downloadApoliceFile(id) {
+  async listApoliceFiles(id) {
     const response = await apoliceFileRequest(`/api/Apolice/${id}/Download`);
-    const blob = await response.blob();
-    const disposition = response.headers.get('content-disposition') || '';
-    const name = disposition.match(/filename\*?=(?:UTF-8''|\")?([^;\"]+)/i)?.[1] || `apolice-${id}`;
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url; link.download = decodeURIComponent(name); link.click();
-    URL.revokeObjectURL(url);
+    const data = await responseData(response);
+    const files = downloadFiles(data);
+    if (!files.length) throw new Error('A API não retornou arquivos para esta apólice.');
+    return files;
+  },
+  async getApoliceDownloadUrl(id) {
+    const files = await this.listApoliceFiles(id);
+    return files[0].url;
+  },
+  async downloadApoliceFile(id, fileName = `apolice-${id}`, signedUrl = '') {
+    const url = signedUrl || await this.getApoliceDownloadUrl(id);
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error();
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl; link.download = fileName; link.click();
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      const link = document.createElement('a');
+      link.href = url; link.download = fileName; link.click();
+    }
   },
 };
 
