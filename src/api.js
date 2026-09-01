@@ -40,7 +40,7 @@ function downloadFiles(data) {
   return values.filter(Boolean).map((file, index) => {
     const url = typeof file === 'string' ? file : file.downloadUrl || file.url || file.presignedUrl || '';
     const nome = typeof file === 'string' ? decodeURIComponent(file.split('?')[0].split('/').pop() || `Arquivo ${index + 1}`) : file.nomeArquivo || file.nome || file.fileName || `Arquivo ${index + 1}`;
-    return { id: typeof file === 'object' ? file.id || file.Id || file.arquivoId || file.ArquivoId : undefined, nome, url, caminhoArquivo: typeof file === 'object' ? file.caminhoArquivo || file.key || '' : '' };
+    return { id: typeof file === 'object' ? file.id || file.Id || file.arquivoId || file.ArquivoId || file.arquivoApoliceId || file.ArquivoApoliceId || file.idArquivo || file.IdArquivo : undefined, nome, url, caminhoArquivo: typeof file === 'object' ? file.caminhoArquivo || file.key || '' : '' };
   }).filter(file => file.url);
 }
 
