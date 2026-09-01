@@ -40,7 +40,7 @@ function downloadFiles(data) {
   return values.filter(Boolean).map((file, index) => {
     const url = typeof file === 'string' ? file : file.downloadUrl || file.url || file.presignedUrl || '';
     const nome = typeof file === 'string' ? decodeURIComponent(file.split('?')[0].split('/').pop() || `Arquivo ${index + 1}`) : file.nomeArquivo || file.nome || file.fileName || `Arquivo ${index + 1}`;
-    return { nome, url, caminhoArquivo: typeof file === 'object' ? file.caminhoArquivo || file.key || '' : '' };
+    return { id: typeof file === 'object' ? file.id || file.Id || file.arquivoId || file.ArquivoId : undefined, nome, url, caminhoArquivo: typeof file === 'object' ? file.caminhoArquivo || file.key || '' : '' };
   }).filter(file => file.url);
 }
 
@@ -61,22 +61,25 @@ export const api = {
     if (!response.ok) throw new Error('Não foi possível enviar o arquivo para o armazenamento.');
     const caminhoArquivo = upload?.caminhoArquivo || upload?.key || upload?.objectKey || upload?.fileKey || upload?.data?.caminhoArquivo || upload?.data?.key;
     if (!caminhoArquivo) throw new Error('O arquivo foi enviado, mas a API não retornou o caminho para vinculá-lo à apólice.');
-    await request(`/api/Apolice/${id}/arquivo`, { method: 'PUT', body: JSON.stringify({ caminhoArquivo }) });
+    await request(`/api/Apolice/${id}/arquivos`, { method: 'POST', body: JSON.stringify({ nomeArquivo: file.name, caminhoArquivo, contentType: file.type || 'application/octet-stream', tamanhoBytes: file.size }) });
     return { nome: file.name, caminhoArquivo };
   },
   async listApoliceFiles(id) {
-    const response = await apoliceFileRequest(`/api/Apolice/${id}/Download`);
+    const response = await apoliceFileRequest(`/api/Apolice/${id}/arquivos`);
     const data = await responseData(response);
     const files = downloadFiles(data);
     if (!files.length) throw new Error('A API não retornou arquivos para esta apólice.');
     return files;
   },
-  async getApoliceDownloadUrl(id) {
-    const files = await this.listApoliceFiles(id);
+  async getApoliceDownloadUrl(id, arquivoId) {
+    if (!arquivoId) throw new Error('Arquivo não identificado para download.');
+    const response = await apoliceFileRequest(`/api/Apolice/${id}/arquivos/${arquivoId}/download`);
+    const files = downloadFiles(await responseData(response));
+    if (!files.length) throw new Error('A API não retornou a URL de acesso ao arquivo.');
     return files[0].url;
   },
-  async downloadApoliceFile(id, fileName = `apolice-${id}`, signedUrl = '') {
-    const url = signedUrl || await this.getApoliceDownloadUrl(id);
+  async downloadApoliceFile(id, arquivoId, fileName = `apolice-${id}`, signedUrl = '') {
+    const url = signedUrl || await this.getApoliceDownloadUrl(id, arquivoId);
     try {
       const response = await fetch(url);
       if (!response.ok) throw new Error();
