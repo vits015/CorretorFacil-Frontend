@@ -44,14 +44,33 @@ function downloadFiles(data) {
   }).filter(file => file.url);
 }
 
+function apoliceQuery(body = {}) {
+  const values = {
+    Id: body.id ?? body.Id,
+    ClienteID: body.clienteID ?? body.ClienteID,
+    VigenciaInicio: body.vigenciaInicio ?? body.VigenciaInicio,
+    VigenciaFim: body.vigenciaFim ?? body.VigenciaFim,
+    SeguradoraID: body.seguradoraID ?? body.SeguradoraID,
+    TipoSeguro: body.tipoSeguro ?? body.TipoSeguro,
+    Produto: body.produto ?? body.Produto,
+    PagamentoID: body.pagamentoID ?? body.PagamentoID,
+    PremioLiquido: body.premioLiquido ?? body.PremioLiquido,
+    Comissao: body.comissao ?? body.Comissao,
+    LinkArquivos: body.linkArquivos ?? body.LinkArquivos ?? body.linkApolice ?? body.LinkApolice,
+  };
+  const query = new URLSearchParams();
+  Object.entries(values).forEach(([key, value]) => { if (value !== undefined && value !== null && value !== '') query.set(key, value); });
+  return query.toString();
+}
+
 export const api = {
   login: (body) => request('/api/Usuario/Login', { method: 'POST', body: JSON.stringify(body) }),
   register: (body) => request('/api/Usuario', { method: 'POST', body: JSON.stringify(body) }),
   list: (resource) => request(`/api/${resource}`),
   details: (resource, id = '') => request(`/api/${resource}/details${id !== '' ? `/${id}` : ''}`),
   get: (resource, id) => request(`/api/${resource}/${id}`),
-  create: (resource, body) => request(`/api/${resource}`, { method: 'POST', body: JSON.stringify(body) }),
-  update: (resource, body) => request(`/api/${resource}`, { method: 'PUT', body: JSON.stringify(body) }),
+  create: (resource, body) => resource === 'Apolice' ? request(`/api/Apolice/apolicePost?${apoliceQuery(body)}`, { method: 'POST' }) : request(`/api/${resource}`, { method: 'POST', body: JSON.stringify(body) }),
+  update: (resource, body) => resource === 'Apolice' ? request(`/api/Apolice/apolicePut?${apoliceQuery(body)}`, { method: 'PUT' }) : request(`/api/${resource}`, { method: 'PUT', body: JSON.stringify(body) }),
   remove: (resource, id) => request(`/api/${resource}/${id}`, { method: 'DELETE' }),
   removeApoliceFile: (id, arquivoId) => request(`/api/Apolice/${id}/arquivos/${arquivoId}`, { method: 'DELETE' }),
   async uploadApoliceFile(id, file) {

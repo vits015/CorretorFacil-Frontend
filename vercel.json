@@ -33,6 +33,14 @@
       "destination": "https://corretorfacil.onrender.com/:id/arquivos"
     },
     {
+      "source": "/api/Apolice/apolicePost",
+      "destination": "https://corretorfacil.onrender.com/apolicePost"
+    },
+    {
+      "source": "/api/Apolice/apolicePut",
+      "destination": "https://corretorfacil.onrender.com/apolicePut"
+    },
+    {
       "source": "/api/Apolice/:id",
       "destination": "https://corretorfacil.onrender.com/:id"
     },
