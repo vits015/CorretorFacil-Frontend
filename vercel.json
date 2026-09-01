@@ -25,6 +25,10 @@
       "destination": "https://corretorfacil.onrender.com/:id/arquivos/:arquivoId/download"
     },
     {
+      "source": "/api/Apolice/:id/arquivos/:arquivoId",
+      "destination": "https://corretorfacil.onrender.com/:id/arquivos/:arquivoId"
+    },
+    {
       "source": "/api/Apolice/:id/arquivos",
       "destination": "https://corretorfacil.onrender.com/:id/arquivos"
     },

@@ -53,6 +53,7 @@ export const api = {
   create: (resource, body) => request(`/api/${resource}`, { method: 'POST', body: JSON.stringify(body) }),
   update: (resource, body) => request(`/api/${resource}`, { method: 'PUT', body: JSON.stringify(body) }),
   remove: (resource, id) => request(`/api/${resource}/${id}`, { method: 'DELETE' }),
+  removeApoliceFile: (id, arquivoId) => request(`/api/Apolice/${id}/arquivos/${arquivoId}`, { method: 'DELETE' }),
   async uploadApoliceFile(id, file) {
     const upload = await request(`/api/Apolice/${id}/upload-url`, { method: 'POST', body: JSON.stringify({ nomeArquivo: file.name, contentType: file.type || 'application/octet-stream' }) });
     const uploadUrl = typeof upload === 'string' ? upload : upload?.uploadUrl || upload?.url || upload?.presignedUrl || upload?.data?.uploadUrl || upload?.data?.url;
